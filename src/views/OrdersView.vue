@@ -19,7 +19,7 @@
       };
     },
     created() {
-      axios.get('http://localhost:3000/orders')
+      axios.get('http://51.250.115.233:3000/api/orders')
         .then(response => {
           this.orders = response.data;
         });
