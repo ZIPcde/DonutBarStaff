@@ -15,11 +15,12 @@
           <th>Fats</th>
           <th>Proteins</th>
           <th>Carbohydrates</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="products.length === 0">
-          <td colspan="11">No products available</td>
+          <td colspan="12">No products available</td>
         </tr>
         <tr v-for="product in products" :key="product.id">
           <td>{{ product.id }}</td>
@@ -33,13 +34,60 @@
           <td>{{ product.fats }}</td>
           <td>{{ product.proteins }}</td>
           <td>{{ product.carbohydrates }}</td>
+          <td>
+            <button @click="editProduct(product)">Edit</button>
+            <button @click="deleteProduct(product.id)">Delete</button>
+          </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- Edit Product Modal -->
+    <div v-if="editingProduct" class="modal">
+      <div class="modal-content">
+        <h2>Edit Product</h2>
+        <form @submit.prevent="updateProduct">
+          <label>ID:
+            <input v-model="editingProduct.id" disabled />
+          </label>
+          <label>Category:
+            <input v-model="editingProduct.category" />
+          </label>
+          <label>Name:
+            <input v-model="editingProduct.name" />
+          </label>
+          <label>Price:
+            <input v-model.number="editingProduct.price" type="number" />
+          </label>
+          <label>Image Path:
+            <input v-model="editingProduct.imagePath" />
+          </label>
+          <label>Description:
+            <textarea v-model="editingProduct.description"></textarea>
+          </label>
+          <label>Weight:
+            <input v-model="editingProduct.weight" />
+          </label>
+          <label>Calories:
+            <input v-model.number="editingProduct.calories" type="number" />
+          </label>
+          <label>Fats:
+            <input v-model.number="editingProduct.fats" type="number" />
+          </label>
+          <label>Proteins:
+            <input v-model.number="editingProduct.proteins" type="number" />
+          </label>
+          <label>Carbohydrates:
+            <input v-model.number="editingProduct.carbohydrates" type="number" />
+          </label>
+          <button type="submit">Save</button>
+          <button @click="cancelEdit">Cancel</button>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
-  
 <script>
 import axios from 'axios';
 
@@ -47,6 +95,7 @@ export default {
   data() {
     return {
       products: [],
+      editingProduct: null,
     };
   },
   created() {
@@ -59,8 +108,30 @@ export default {
         this.products = response.data;
       } catch (error) {
         console.error('Error fetching products:', error);
-        // Optionally handle error and set an empty array or show an error message
       }
+    },
+    editProduct(product) {
+      this.editingProduct = { ...product }; // Create a copy for editing
+    },
+    async updateProduct() {
+      try {
+        await axios.put(`http://51.250.115.233:3000/api/products/${this.editingProduct.id}`, this.editingProduct);
+        this.fetchProducts(); // Refresh the list
+        this.editingProduct = null; // Close the modal
+      } catch (error) {
+        console.error('Error updating product:', error);
+      }
+    },
+    async deleteProduct(id) {
+      try {
+        await axios.delete(`http://51.250.115.233:3000/api/products/${id}`);
+        this.fetchProducts(); // Refresh the list
+      } catch (error) {
+        console.error('Error deleting product:', error);
+      }
+    },
+    cancelEdit() {
+      this.editingProduct = null; // Close the modal
     }
   }
 };
@@ -79,6 +150,21 @@ th, td {
 th {
   background-color: #f2f2f2;
 }
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 400px;
+}
 </style>
-
-  
