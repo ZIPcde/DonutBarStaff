@@ -42,6 +42,44 @@
       </tbody>
     </table>
 
+    <!-- Add Product Form -->
+    <div class="form-container">
+      <h2>Add New Product</h2>
+      <form @submit.prevent="addProduct">
+        <label>Category:
+          <input v-model="newProduct.category" required />
+        </label>
+        <label>Name:
+          <input v-model="newProduct.name" required />
+        </label>
+        <label>Price:
+          <input v-model.number="newProduct.price" type="number" required />
+        </label>
+        <label>Image Path:
+          <input v-model="newProduct.imagePath" required />
+        </label>
+        <label>Description:
+          <textarea v-model="newProduct.description" required></textarea>
+        </label>
+        <label>Weight:
+          <input v-model="newProduct.weight" required />
+        </label>
+        <label>Calories:
+          <input v-model.number="newProduct.calories" type="number" required />
+        </label>
+        <label>Fats:
+          <input v-model.number="newProduct.fats" type="number" required />
+        </label>
+        <label>Proteins:
+          <input v-model.number="newProduct.proteins" type="number" required />
+        </label>
+        <label>Carbohydrates:
+          <input v-model.number="newProduct.carbohydrates" type="number" required />
+        </label>
+        <button type="submit">Add Product</button>
+      </form>
+    </div>
+
     <!-- Edit Product Modal -->
     <div v-if="editingProduct" class="modal">
       <div class="modal-content">
@@ -94,7 +132,20 @@ import axios from 'axios';
 export default {
   data() {
     return {
+      apiUrl: process.env.VUE_APP_API_BASE_URL,
       products: [],
+      newProduct: {
+        category: '',
+        name: '',
+        price: null,
+        imagePath: '',
+        description: '',
+        weight: '',
+        calories: null,
+        fats: null,
+        proteins: null,
+        carbohydrates: null,
+      },
       editingProduct: null,
     };
   },
@@ -104,18 +155,41 @@ export default {
   methods: {
     async fetchProducts() {
       try {
-        const response = await axios.get('http://51.250.115.233:3000/api/products');
+        const response = await axios.get(`${this.apiUrl}/api/products`);
         this.products = response.data;
       } catch (error) {
         console.error('Error fetching products:', error);
       }
+    },
+    async addProduct() {
+      try {
+        const response = await axios.post(`${this.apiUrl}/api/products`, this.newProduct);
+        this.products.push(response.data); // Add the new product to the list
+        this.resetNewProduct(); // Reset form fields
+      } catch (error) {
+        console.error('Error adding product:', error);
+      }
+    },
+    resetNewProduct() {
+      this.newProduct = {
+        category: '',
+        name: '',
+        price: null,
+        imagePath: '',
+        description: '',
+        weight: '',
+        calories: null,
+        fats: null,
+        proteins: null,
+        carbohydrates: null,
+      };
     },
     editProduct(product) {
       this.editingProduct = { ...product }; // Create a copy for editing
     },
     async updateProduct() {
       try {
-        await axios.put(`http://51.250.115.233:3000/api/products/${this.editingProduct.id}`, this.editingProduct);
+        await axios.put(`${this.apiUrl}/api/products/${this.editingProduct.id}`, this.editingProduct);
         this.fetchProducts(); // Refresh the list
         this.editingProduct = null; // Close the modal
       } catch (error) {
@@ -124,7 +198,7 @@ export default {
     },
     async deleteProduct(id) {
       try {
-        await axios.delete(`http://51.250.115.233:3000/api/products/${id}`);
+        await axios.delete(`${this.apiUrl}/api/products/${id}`);
         this.fetchProducts(); // Refresh the list
       } catch (error) {
         console.error('Error deleting product:', error);
@@ -149,6 +223,9 @@ th, td {
 }
 th {
   background-color: #f2f2f2;
+}
+.form-container {
+  margin-top: 20px;
 }
 .modal {
   position: fixed;

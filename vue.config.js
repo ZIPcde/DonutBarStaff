@@ -7,7 +7,7 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://51.250.115.233:3000', // Адрес вашего backend (сервер Express)
+        target: process.env.VUE_APP_API_BASE_URL || 'http://localhost:3000', // Используем переменную окружения
         changeOrigin: false,
         pathRewrite: { '^/api': '' } // Переписывает /api в URL запроса
       }

@@ -16,10 +16,11 @@
     data() {
       return {
         customers: [],
+        apiUrl: process.env.VUE_APP_API_BASE_URL,
       };
     },
     created() {
-      axios.get('http://51.250.115.233:3000/api/customers')
+      axios.get(`${this.apiUrl}/api/customers`)
         .then(response => {
           this.customers = response.data;
         });

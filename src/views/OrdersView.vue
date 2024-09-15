@@ -15,11 +15,12 @@
   export default {
     data() {
       return {
+        apiUrl: process.env.VUE_APP_API_BASE_URL,
         orders: [],
       };
     },
     created() {
-      axios.get('http://51.250.115.233:3000/api/orders')
+      axios.get(`${this.apiUrl}/api/orders`)
         .then(response => {
           this.orders = response.data;
         });

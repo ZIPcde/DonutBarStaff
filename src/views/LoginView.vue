@@ -1,4 +1,5 @@
 <!-- donut_bar_staff\src\views\LoginView.vue -->
+
 <template>
   <div class="login">
     <h1>Login</h1>
@@ -30,9 +31,12 @@ export default {
     const error = ref('');
     const router = useRouter();
 
+    // Получение переменной окружения
+    const apiUrl = process.env.VUE_APP_API_BASE_URL;
+
     const login = async () => {
       try {
-        const response = await axios.post('http://51.250.115.233:3000/api/login', {
+        const response = await axios.post(`${apiUrl}/api/login`, {
           username: username.value,
           password: password.value
         }, {

@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://51.250.115.233:3000/', // Замените на URL вашего API
+  baseURL: process.env.VUE_APP_API_BASE_URL || 'http://51.250.114.152:3000', // Замените на URL вашего API
 });
 
 export const fetchOrders = () => api.get('/orders');

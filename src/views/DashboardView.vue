@@ -44,6 +44,7 @@ import axios from 'axios';
 export default {
   data() {
     return {
+      apiUrl: process.env.VUE_APP_API_BASE_URL,
       totalCustomers: 0,
       totalOrders: 0,
       totalProducts: 0,
@@ -53,7 +54,7 @@ export default {
   created() {
     const token = localStorage.getItem('token'); // Получаем токен
 
-axios.get('http://51.250.115.233:3000/api/customers', {
+axios.get(`${this.apiUrl}/api/customers`, {
   headers: {
     Authorization: `Bearer ${token}`
   }
@@ -65,7 +66,7 @@ axios.get('http://51.250.115.233:3000/api/customers', {
   console.error('Error fetching customers:', error);
 });
 
-axios.get('http://51.250.115.233:3000/api/orders', {
+axios.get(`${this.apiUrl}/api/orders`, {
   headers: {
     Authorization: `Bearer ${token}`
   }
@@ -78,7 +79,7 @@ axios.get('http://51.250.115.233:3000/api/orders', {
   console.error('Error fetching orders:', error);
 });
 
-axios.get('http://51.250.115.233:3000/api/products', {
+axios.get(`${this.apiUrl}/api/products`, {
   headers: {
     Authorization: `Bearer ${token}`
   }
