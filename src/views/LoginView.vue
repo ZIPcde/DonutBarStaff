@@ -40,7 +40,6 @@ export default {
         'Content-Type': 'application/json'
       }
     });
-        
         // Сохраняем токен в localStorage
         localStorage.setItem('token', response.data.token);
         

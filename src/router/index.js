@@ -8,10 +8,10 @@ import DashboardView from '../views/DashboardView.vue'; // Добавляем Da
 
 const routes = [
   { path: '/', component: LoginView },
-  { path: '/orders', component: OrdersView, meta: { requiresAuth: true, role: 'staff' } },
+  { path: '/orders', component: OrdersView, meta: { requiresAuth: true } },
   { path: '/products', component: ProductsView, meta: { requiresAuth: true } },
-  { path: '/customers', component: CustomersView, meta: { requiresAuth: true, role: 'staff' } },
-  { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true, role: 'staff' } } // Страница для персонала
+  { path: '/customers', component: CustomersView, meta: { requiresAuth: true } },
+  { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true } } // Страница для персонала
 ];
 
 const router = createRouter({
@@ -22,18 +22,11 @@ const router = createRouter({
 // Глобальный навигационный хук для проверки аутентификации и авторизации
 router.beforeEach((to, from, next) => {
   const isAuthenticated = !!localStorage.getItem('token');
-  const userRole = localStorage.getItem('role'); // Можно использовать роль пользователя, если она хранится в localStorage
 
-  if (to.meta.requiresAuth) {
-    if (!isAuthenticated) {
-      next('/');
-    } else if (to.meta.role && to.meta.role !== userRole) {
-      next('/'); // Перенаправляем на страницу логина или ошибку, если роль не совпадает
-    } else {
-      next();
-    }
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/'); // Перенаправляем на страницу логина, если пользователь не авторизован
   } else {
-    next();
+    next(); // Продолжаем маршрут, если пользователь авторизован
   }
 });
 
