@@ -162,14 +162,23 @@ export default {
       }
     },
     async addProduct() {
-      try {
-        const response = await axios.post(`${this.apiUrl}/api/products`, this.newProduct);
-        this.products.push(response.data); // Add the new product to the list
-        this.resetNewProduct(); // Reset form fields
-      } catch (error) {
-        console.error('Error adding product:', error);
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.post(
+      `${this.apiUrl}/api/products`, 
+      { productDetails: this.newProduct },  // Обернуть объект в productDetails
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    },
+    );
+    this.products.push(response.data);
+    this.resetNewProduct();
+  } catch (error) {
+    console.error('Error adding product:', error);
+  }
+},
     resetNewProduct() {
       this.newProduct = {
         category: '',
@@ -188,22 +197,33 @@ export default {
       this.editingProduct = { ...product }; // Create a copy for editing
     },
     async updateProduct() {
-      try {
-        await axios.put(`${this.apiUrl}/api/products/${this.editingProduct.id}`, this.editingProduct);
-        this.fetchProducts(); // Refresh the list
-        this.editingProduct = null; // Close the modal
-      } catch (error) {
-        console.error('Error updating product:', error);
+  try {
+    const token = localStorage.getItem('token');
+    await axios.put(`${this.apiUrl}/api/products/${this.editingProduct.id}`, this.editingProduct, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    },
-    async deleteProduct(id) {
-      try {
-        await axios.delete(`${this.apiUrl}/api/products/${id}`);
-        this.fetchProducts(); // Refresh the list
-      } catch (error) {
-        console.error('Error deleting product:', error);
+    });
+    this.fetchProducts(); // Обновление списка
+    this.editingProduct = null; // Закрытие модала
+  } catch (error) {
+    console.error('Error updating product:', error);
+  }
+},
+
+async deleteProduct(id) {
+  try {
+    const token = localStorage.getItem('token');
+    await axios.delete(`${this.apiUrl}/api/products/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    },
+    });
+    this.fetchProducts(); // Обновление списка
+  } catch (error) {
+    console.error('Error deleting product:', error);
+  }
+},
     cancelEdit() {
       this.editingProduct = null; // Close the modal
     }
