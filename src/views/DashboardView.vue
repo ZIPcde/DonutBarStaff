@@ -31,8 +31,8 @@
 
     <!-- Ссылки на другие разделы -->
     <div class="navigation">
-      <router-link to="/orders" class="btn">Manage Orders</router-link>
       <router-link to="/customers" class="btn">Manage Customers</router-link>
+      <router-link to="/orders" class="btn">Manage Orders</router-link>
       <router-link to="/products" class="btn">Manage Products</router-link>
     </div>
   </div>
