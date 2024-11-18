@@ -19,6 +19,12 @@
       </div>
     </div>
 
+    <!-- Ссылки на другие разделы -->
+    <div class="navigation">
+      <router-link to="/customers" class="btn">Manage Customers</router-link>
+      <router-link to="/orders" class="btn">Manage Orders</router-link>
+      <router-link to="/products" class="btn">Manage Products</router-link>
+    </div>
     <!-- Секция с последними заказами -->
     <div class="recent-orders">
       <h2>Recent Orders</h2>
@@ -29,12 +35,6 @@
       </ul>
     </div>
 
-    <!-- Ссылки на другие разделы -->
-    <div class="navigation">
-      <router-link to="/customers" class="btn">Manage Customers</router-link>
-      <router-link to="/orders" class="btn">Manage Orders</router-link>
-      <router-link to="/products" class="btn">Manage Products</router-link>
-    </div>
   </div>
 </template>
 
@@ -73,7 +73,7 @@ axios.get(`${this.apiUrl}/api/orders`, {
 })
 .then(response => {
   this.totalOrders = response.data.length;
-  this.recentOrders = response.data.slice(0, 5); // Получаем последние 5 заказов
+  this.recentOrders = response.data.slice(-5); // Получаем последние 5 заказов
 })
 .catch(error => {
   console.error('Error fetching orders:', error);
