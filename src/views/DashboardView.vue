@@ -30,7 +30,7 @@
       <h2>Recent Orders</h2>
       <ul>
         <li v-for="order in recentOrders" :key="order.id">
-          Order ID: {{ order.id }} - {{ order.details }} - {{ order.status }}
+          Order ID: {{ order.id }} - {{ order.customer_name }} - {{ order.customer_phone }} - {{ order.order_time }} - {{ order.completed ? "завершено" : "в обработке" }}
         </li>
       </ul>
     </div>
