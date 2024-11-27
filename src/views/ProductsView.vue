@@ -27,7 +27,13 @@
           <td>{{ product.category }}</td>
           <td>{{ product.name }}</td>
           <td>{{ product.price }}</td>
-          <td>{{ product.imagePath }}</td>
+          <td>
+            <img 
+              v-if="product.imagePath" 
+              :src="`${apiUrl}/images/${product.imagePath}`" 
+              alt="Product Image" 
+              width="50" />
+          </td>
           <td>{{ product.description }}</td>
           <td>{{ product.weight }}</td>
           <td>{{ product.calories }}</td>
@@ -37,6 +43,10 @@
           <td>
             <button @click="editProduct(product)">Edit</button>
             <button @click="deleteProduct(product.id)">Delete</button>
+            <form @submit.prevent="uploadImage(product.id, $event)">
+              <input type="file" ref="fileInput" />
+              <button type="submit">Upload Image</button>
+            </form>
           </td>
         </tr>
       </tbody>
@@ -162,23 +172,23 @@ export default {
       }
     },
     async addProduct() {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.post(
-      `${this.apiUrl}/api/products`, 
-      { productDetails: this.newProduct },  // Обернуть объект в productDetails
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.post(
+          `${this.apiUrl}/api/products`,
+          { productDetails: this.newProduct },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+        this.products.push(response.data);
+        this.resetNewProduct();
+      } catch (error) {
+        console.error('Error adding product:', error);
       }
-    );
-    this.products.push(response.data);
-    this.resetNewProduct();
-  } catch (error) {
-    console.error('Error adding product:', error);
-  }
-},
+    },
     resetNewProduct() {
       this.newProduct = {
         category: '',
@@ -197,71 +207,63 @@ export default {
       this.editingProduct = { ...product }; // Create a copy for editing
     },
     async updateProduct() {
-  try {
-    const token = localStorage.getItem('token');
-    await axios.put(`${this.apiUrl}/api/products/${this.editingProduct.id}`, this.editingProduct, {
-      headers: {
-        Authorization: `Bearer ${token}`
+      try {
+        const token = localStorage.getItem('token');
+        await axios.put(
+          `${this.apiUrl}/api/products/${this.editingProduct.id}`,
+          this.editingProduct,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+        this.fetchProducts(); // Обновление списка
+        this.editingProduct = null; // Закрытие модала
+      } catch (error) {
+        console.error('Error updating product:', error);
       }
-    });
-    this.fetchProducts(); // Обновление списка
-    this.editingProduct = null; // Закрытие модала
-  } catch (error) {
-    console.error('Error updating product:', error);
-  }
-},
+    },
+    async deleteProduct(id) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`${this.apiUrl}/api/products/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        this.fetchProducts(); // Обновление списка
+      } catch (error) {
+        console.error('Error deleting product:', error);
+      }
+    },
+    async uploadImage(productId, event) {
+      try {
+        const token = localStorage.getItem('token');
+        const file = event.target.querySelector('input[type="file"]').files[0];
+        if (!file) {
+          alert('Please select an image file');
+          return;
+        }
+        const formData = new FormData();
+        formData.append('image', file);
 
-async deleteProduct(id) {
-  try {
-    const token = localStorage.getItem('token');
-    await axios.delete(`${this.apiUrl}/api/products/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
+        await axios.post(`${this.apiUrl}/api/products/${productId}/image`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        alert('Image uploaded successfully');
+        this.fetchProducts(); // Refresh the list
+      } catch (error) {
+        console.error('Error uploading image:', error);
       }
-    });
-    this.fetchProducts(); // Обновление списка
-  } catch (error) {
-    console.error('Error deleting product:', error);
-  }
-},
+    },
     cancelEdit() {
       this.editingProduct = null; // Close the modal
     }
   }
 };
 </script>
-
-<style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-th {
-  background-color: #f2f2f2;
-}
-.form-container {
-  margin-top: 20px;
-}
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 5px;
-  width: 400px;
-}
-</style>
