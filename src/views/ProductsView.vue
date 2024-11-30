@@ -42,7 +42,7 @@
           <td>{{ product.carbohydrates }}</td>
           <td>
             <button @click="editProduct(product)">Edit</button>
-            <button @click="deleteProduct(product.id)">Delete</button>
+            <button @click="deleteProduct(product.id, product.imagePath)">Delete</button>
             <form @submit.prevent="uploadImage">
               <input type="file" ref="fileInput" />
               <button type="submit">Upload Image</button>
@@ -224,19 +224,33 @@ export default {
         console.error('Error updating product:', error);
       }
     },
-    async deleteProduct(id) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`${this.apiUrl}/api/products/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        this.fetchProducts(); // Обновление списка
-      } catch (error) {
-        console.error('Error deleting product:', error);
+    async deleteProduct(id, imagePath) {
+  try {
+    const token = localStorage.getItem('token');
+
+    // Удаление изображения
+    if (imagePath) {
+      const imageFileName = imagePath.split('/').pop(); // Получаем имя файла из пути
+      await axios.delete(`${this.apiUrl}/api/images/${imageFileName}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      console.log('Image deleted successfully');
+    }
+
+    // Удаление продукта
+    await axios.delete(`${this.apiUrl}/api/products/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    },
+    });
+
+    this.fetchProducts(); // Обновление списка
+  } catch (error) {
+    console.error('Error deleting product:', error);
+  }
+},
     async uploadImage(event) {
     try {
       const token = localStorage.getItem('token');
