@@ -30,7 +30,7 @@
           <td>
             <img 
               v-if="product.imagePath" 
-              :src="`${apiUrl}/images/${product.imagePath}`" 
+              :src="`${apiUrl}/api/images/${product.imagePath}`" 
               alt="Product Image" 
               width="50" />
           </td>
@@ -43,7 +43,7 @@
           <td>
             <button @click="editProduct(product)">Edit</button>
             <button @click="deleteProduct(product.id)">Delete</button>
-            <form @submit.prevent="uploadImage(product.id, $event)">
+            <form @submit.prevent="uploadImage">
               <input type="file" ref="fileInput" />
               <button type="submit">Upload Image</button>
             </form>
@@ -237,30 +237,30 @@ export default {
         console.error('Error deleting product:', error);
       }
     },
-    async uploadImage(productId, event) {
-      try {
-        const token = localStorage.getItem('token');
-        const file = event.target.querySelector('input[type="file"]').files[0];
-        if (!file) {
-          alert('Please select an image file');
-          return;
-        }
-        const formData = new FormData();
-        formData.append('image', file);
-
-        await axios.post(`${this.apiUrl}/api/products/${productId}/image`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-
-        alert('Image uploaded successfully');
-        this.fetchProducts(); // Refresh the list
-      } catch (error) {
-        console.error('Error uploading image:', error);
+    async uploadImage(event) {
+    try {
+      const token = localStorage.getItem('token');
+      const file = event.target.querySelector('input[type="file"]').files[0];
+      if (!file) {
+        alert('Please select an image file');
+        return;
       }
-    },
+      const formData = new FormData();
+      formData.append('image', file);
+
+      // Отправляем запрос без ID
+      await axios.post(`${this.apiUrl}/api/images`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      alert('Image uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  },
     cancelEdit() {
       this.editingProduct = null; // Close the modal
     }
