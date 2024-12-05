@@ -41,13 +41,14 @@
           <td>{{ product.proteins }}</td>
           <td>{{ product.carbohydrates }}</td>
           <td>
-            <button @click="editProduct(product)">Edit</button>
-            <button @click="deleteProduct(product.id, product.imagePath)">Delete</button>
-            <form @submit.prevent="uploadImage">
-              <input type="file" ref="fileInput" />
-              <button type="submit">Upload Image</button>
-            </form>
-          </td>
+  <button @click="editProduct(product)">Edit</button>
+  <button @click="deleteProduct(product.id)">Delete product</button>
+  <button @click="deleteProduct(product.id, product.imagePath)">Delete image</button>
+  <form @submit.prevent="uploadImage">
+    <input type="file" ref="fileInput" />
+    <button type="submit">Upload Image</button>
+  </form>
+</td>
         </tr>
       </tbody>
     </table>
@@ -55,7 +56,7 @@
     <!-- Add Product Form -->
     <div class="form-container">
       <h2>Add New Product</h2>
-      <form @submit.prevent="addProduct">
+      <form class="form-holder" @submit.prevent="addProduct">
         <label>Category:
           <input v-model="newProduct.category" required />
         </label>
@@ -133,6 +134,17 @@
         </form>
       </div>
     </div>
+    <!-- Поле для массового добавления продуктов -->
+    <div class="bulk-upload">
+      <h2>Bulk Upload Products</h2>
+      <textarea 
+        v-model="bulkProductsJson" 
+        placeholder="Enter JSON array of products" 
+        rows="10" 
+        style="width: 100%;"
+      ></textarea>
+      <button @click="uploadBulkProducts">Upload Products</button>
+    </div>
   </div>
 </template>
 
@@ -157,6 +169,7 @@ export default {
         carbohydrates: null,
       },
       editingProduct: null,
+      bulkProductsJson: "", // Поле для ввода JSON
     };
   },
   created() {
@@ -169,6 +182,35 @@ export default {
         this.products = response.data;
       } catch (error) {
         console.error('Error fetching products:', error);
+      }
+    },
+    async uploadBulkProducts() {
+      try {
+        const token = localStorage.getItem("token");
+        const parsedProducts = JSON.parse(this.bulkProductsJson);
+
+        if (!Array.isArray(parsedProducts)) {
+          alert("Invalid JSON format. Please provide an array of products.");
+          return;
+        }
+
+        // Отправляем запрос для массового добавления
+        await axios.post(
+          `${this.apiUrl}/api/products/bulk`,
+          { products: parsedProducts },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        alert("Products uploaded successfully!");
+        this.bulkProductsJson = ""; // Очистить поле
+        this.fetchProducts(); // Обновить список продуктов
+      } catch (error) {
+        console.error("Error uploading bulk products:", error);
+        alert("Failed to upload products. Check console for details.");
       }
     },
     async addProduct() {
@@ -281,3 +323,26 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.form-container {
+  margin-left: auto;
+}
+
+.form-holder {
+  max-width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items:end
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.bulk-upload {
+  margin-top: 20px;
+}
+
+</style>
